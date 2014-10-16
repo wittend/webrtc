@@ -1212,7 +1212,7 @@ function handleServerNotification_(message) {
 }
 
 function closeCall_() {
-  if (global.peerConnection === undefined) {
+  if (typeof(global.peerConnection) === 'undefined') {
     warning_('Closing call, but no call active.');
   }
   global.peerConnection.close();
@@ -1230,7 +1230,8 @@ function handlePeerMessage_(peerId, message) {
     closeCall_();
     return;
   }
-  if (global.peerConnection === undefined && global.acceptsIncomingCalls) {
+  if (typeof(global.peerConnection) === 'undefined' &&
+      global.acceptsIncomingCalls) {
     // The other side is calling us.
     print_('We are being called: answer...');
 
@@ -1255,7 +1256,7 @@ function restartHangingGet_(server, ourId) {
 
 function readResponseHeader_(request, key) {
   var value = request.getResponseHeader(key);
-  if (value === undefined || value.length === 0) {
+  if (value === null || value.length === 0) {
     error_('Received empty value ' + value +
            ' for response header key ' + key + '.');
   }
