@@ -788,7 +788,7 @@ function negotiateCall_() {
 
 // This provides the selected source id from the objects in the parameters
 // provided to this function. If the audioSelect or videoSelect objects does
-// not have any HTMLOptions children it will return undefined in the source 
+// not have any HTMLOptions children it will return null in the source 
 // object.
 // @param {!object} audioSelect HTML drop down element with audio devices added
 // as HTMLOptionsCollection children.
@@ -846,7 +846,7 @@ function removeStreamCallback_(event) {
 }
 
 function onCreateDataChannelCallback_(event) {
-  if (global.dataChannel !== undefined && 
+  if (typeof(global.dataChannel) !== 'undefined' && 
       global.dataChannel.readyState !== 'closed') {
     error_('Received DataChannel, but we already have one.');
   }
@@ -949,7 +949,7 @@ function registerLocalStorage_(elementId) {
           'Element \"' + element.tagName + '\" is not an input element. ');
   }
 
-  if (localStorage.getItem(element.id) === undefined) {
+  if (localStorage.getItem(element.id) === null) {
     storeLocalStorageField_(element);
   } else {
     getLocalStorageField_(element);
