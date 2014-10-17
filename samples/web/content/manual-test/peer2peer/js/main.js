@@ -14,9 +14,6 @@
 // Global namespace object.
 var global = {};
 global.transformOutgoingSdp = function(sdp) { return sdp; };
-global.dataStatusCallback = function(status) {};
-global.dataCallback = function(data) {};
-global.dtmfOnToneChange = function(tone) {};
 
 // We need a STUN server for some API calls.
 var STUN_SERVER = 'stun.l.google.com:19302';
@@ -62,6 +59,7 @@ function setupLocalStorageFieldValues() {
 // The *Here functions are called from peer2peer.html and will make calls
 // into our underlying JavaScript library with the values from the page
 // (have to be named differently to avoid name clashes with existing functions).
+/* exported getUserMediaFromHere */
 function getUserMediaFromHere() {
   var constraints = $('getusermedia-constraints').value;
   try {
@@ -70,7 +68,7 @@ function getUserMediaFromHere() {
     print_('getUserMedia says: ' + exception);
   }
 }
-
+/* exported connectFromHere */
 function connectFromHere() {
   var server = $('pc-server').value;
   if ($('peer-id').value === '') {
@@ -81,6 +79,7 @@ function connectFromHere() {
   connect(server, $('peer-id').value);
 }
 
+/* exported negotiateCallFromHere */
 function negotiateCallFromHere() {
   // Set the global variables with values from our UI.
   setCreateOfferConstraints(getEvaluatedJavaScript_(
@@ -92,68 +91,80 @@ function negotiateCallFromHere() {
   negotiateCall_();
 }
 
+/* exported addLocalStreamFromHere */
 function addLocalStreamFromHere() {
   ensureHasPeerConnection_();
   addLocalStream();
 }
 
+/* exported removeLocalStreamFromHere */
 function removeLocalStreamFromHere() {
   removeLocalStream();
 }
 
+/* exported hangUpFromHere */
 function hangUpFromHere() {
   hangUp();
   acceptIncomingCalls();
 }
 
+/* exported toggleRemoteVideoFromHere */
 function toggleRemoteVideoFromHere() {
   toggleRemoteStream(function(remoteStream) {
     return remoteStream.getVideoTracks()[0];
   }, 'video');
 }
 
+/* exported toggleRemoteAudioFromHere */
 function toggleRemoteAudioFromHere() {
   toggleRemoteStream(function(remoteStream) {
     return remoteStream.getAudioTracks()[0];
   }, 'audio');
 }
-
+/* exported toggleLocalVideoFromHere */
 function toggleLocalVideoFromHere() {
   toggleLocalStream(function(localStream) {
     return localStream.getVideoTracks()[0];
   }, 'video');
 }
 
+/* exported toggleLocalAudioFromHere */
 function toggleLocalAudioFromHere() {
   toggleLocalStream(function(localStream) {
     return localStream.getAudioTracks()[0];
   }, 'audio');
 }
 
+/* exported stopLocalFromHere */
 function stopLocalFromHere() {
   stopLocalStream();
 }
 
+/* exported createDataChannelFromHere */
 function createDataChannelFromHere() {
   ensureHasPeerConnection_();
   createDataChannelOnPeerConnection();
 }
 
+/* exported closeDataChannelFromHere */
 function closeDataChannelFromHere() {
   ensureHasPeerConnection_();
   closeDataChannelOnPeerConnection();
 }
 
+/* exported sendDataFromHere */
 function sendDataFromHere() {
   var data = $('data-channel-send').value;
   sendDataOnChannel(data);
 }
 
+/* exported createDtmfSenderFromHere */
 function createDtmfSenderFromHere() {
   ensureHasPeerConnection_();
   createDtmfSenderOnPeerConnection();
 }
 
+/* exported insertDtmfFromHere */
 function insertDtmfFromHere() {
   var tones = $('dtmf-tones').value;
   var duration = $('dtmf-tones-duration').value;
@@ -161,6 +172,7 @@ function insertDtmfFromHere() {
   insertDtmfOnSender(tones, duration, gap);
 }
 
+/* exported forceIsacChanged */
 function forceIsacChanged() {
   var forceIsac = $('force-isac').checked;
   if (forceIsac) {
@@ -173,7 +185,7 @@ function forceIsacChanged() {
 // Updates the constraints in the getusermedia-constraints text box with a
 // MediaStreamConstraints string. This string is created based on the state
 // of the 'audiosrc' and 'videosrc' checkboxes.
-// If device enumeration is supported and device source id's are not undefined 
+// If device enumeration is supported and device source id's are not undefined
 // they will be added to the constraints string.
 function updateGetUserMediaConstraints() {
   var selectedAudioDevice = $('audiosrc');
@@ -222,6 +234,7 @@ function updateGetUserMediaConstraints() {
   $('getusermedia-constraints').value = JSON.stringify(constraints, null, ' ');
 }
 
+/* exported showServerHelp */
 function showServerHelp() {
   alert('You need to build and run a peerconnection_server on some ' +
         'suitable machine. To build it in chrome, just run make/ninja ' +
@@ -230,6 +243,7 @@ function showServerHelp() {
         'DME%20package:webrtc%5C.googlecode%5C.com.');
 }
 
+/* exported clearLog */
 function clearLog() {
   $('messages').innerHTML = '';
   $('debug').innerHTML = '';
@@ -289,15 +303,13 @@ function getDevices() {
   selectedAudioDevice.innerHTML = '';
   selectedVideoDevice.innerHTML = '';
 
-  try {
-    eval(MediaStreamTrack.getSources(function() {}));
-  } catch (exception) {
+  if (typeof(MediaStreamTrack.getSources) === 'undefined') {
     selectedAudioDevice.disabled = true;
     selectedVideoDevice.disabled = true;
     $('get-devices').disabled = true;
     $('get-devices-onload').disabled = true;
     updateGetUserMediaConstraints();
-    error_('Device enumeration not supported. ' + exception);
+    error_('getSources not found, device enumeration not supported');
   }
 
   MediaStreamTrack.getSources(function(devices) {
@@ -464,12 +476,12 @@ function answerCall(peerConnection, message) {
 }
 
 function createDataChannel(peerConnection, label) {
-  if (typeof(global.dataChannel) !== 'undefined' && 
+  if (typeof(global.dataChannel) !== 'undefined' &&
       global.dataChannel.readyState !== 'closed') {
     error_('Creating DataChannel, but we already have one.');
   }
 
-  global.dataChannel = peerConnection.createDataChannel(label, 
+  global.dataChannel = peerConnection.createDataChannel(label,
       { reliable: false });
   print_('DataChannel with label ' + global.dataChannel.label + ' initiated ' +
          'locally.');
@@ -518,16 +530,6 @@ function connect(serverUrl, clientName) {
   request.send();
 }
 
-// Checks if the remote peer has connected. Returns peer-connected if that is
-// the case, otherwise no-peer-connected.
-function remotePeerIsConnected() {
-  if (typeof(global.remotePeerId) === 'undefined') {
-    print_('no-peer-connected');
-  } else {
-    print_('peer-connected');
-  }
-}
-
 // Creates a peer connection. Must be called before most other public functions
 // in this file.
 function preparePeerConnection() {
@@ -556,11 +558,6 @@ function removeLocalStream() {
   }
   removeLocalStreamFromPeerConnection(global.peerConnection);
   print_('ok-local-stream-removed');
-}
-
-// (see getReadyState_)
-function getPeerConnectionReadyState() {
-  print_(getReadyState_());
 }
 
 // Toggles the remote audio stream's enabled state on the peer connection, given
@@ -678,6 +675,7 @@ function sendToPeer(peer, message) {
 // height is 0, size will be taken from videoTag.videoWidth.
 // @param {!number} height of the video to update the video tag, if width or
 // height is 0 size will be taken from the videoTag.videoHeight.
+/* exported updateVideoTagSize */
 function updateVideoTagSize(videoTagId, width, height) {
   var videoTag = $(videoTagId);
   if (width > 0 || height > 0) {
@@ -719,7 +717,7 @@ function isDisconnected_() {
 // @return {!string} The current peer connection's ready state, or
 // 'no-peer-connection' if there is no peer connection up.
 // NOTE: The PeerConnection states are changing and until chromium has
-// implemented the new states we have to use this interim solution of always 
+// implemented the new states we have to use this interim solution of always
 // assuming that the PeerConnection is 'active'.
 function getReadyState_() {
   if (typeof(global.peerConnection) === 'undefined') {
@@ -743,7 +741,7 @@ function doGetUserMedia_(constraints) {
   }
   var evaluatedConstraints;
   try {
-    eval('evaluatedConstraints = ' + constraints);
+    evaluatedConstraints = JSON.parse(constraints);
   } catch (exception) {
     error_('Not valid JavaScript expression: ' + constraints);
   }
@@ -754,12 +752,12 @@ function doGetUserMedia_(constraints) {
 
 // Must be called after calling doGetUserMedia.
 // @return {string} Returns not-called-yet if we have not yet been called back
-// by WebRTC. Otherwise it returns either ok-got-stream or failed-with-error-x 
-// (where x is the error code from the error callback) depending on which 
+// by WebRTC. Otherwise it returns either ok-got-stream or failed-with-error-x
+// (where x is the error code from the error callback) depending on which
 // callback got called by WebRTC.
 function obtainGetUserMediaResult_() {
   if (typeof(global.requestWebcamAndMicrophoneResult) === 'undefined') {
-    global.requestWebcamAndMicrophoneResult = ' not called yet'; 
+    global.requestWebcamAndMicrophoneResult = ' not called yet';
   }
   return global.requestWebcamAndMicrophoneResult;
 }
@@ -778,7 +776,7 @@ function negotiateCall_() {
   if (typeof(global.peerConnection) === 'undefined') {
     error_('Negotiating call, but we have no peer connection.');
   } else if (typeof(global.ourPeerId) === 'undefined') {
-    error_('Negotiating call, but not connected.'); 
+    error_('Negotiating call, but not connected.');
   } else if (typeof(global.remotePeerId) === 'undefined') {
     error_('Negotiating call, but missing remote peer.');
   }
@@ -788,7 +786,7 @@ function negotiateCall_() {
 
 // This provides the selected source id from the objects in the parameters
 // provided to this function. If the audioSelect or videoSelect objects does
-// not have any HTMLOptions children it will return null in the source 
+// not have any HTMLOptions children it will return null in the source
 // object.
 // @param {!object} audioSelect HTML drop down element with audio devices added
 // as HTMLOptionsCollection children.
@@ -836,17 +834,17 @@ function addStreamCallback_(event) {
   var videoTag = document.getElementById('remote-view');
   attachMediaStream(videoTag, event.stream);
 
-  window.addEventListener('loadedmetadata', 
+  window.addEventListener('loadedmetadata',
       function() {displayVideoSize_(videoTag);}, true);
 }
 
-function removeStreamCallback_(event) {
+function removeStreamCallback_() {
   print_('Call ended.');
   document.getElementById('remote-view').src = '';
 }
 
 function onCreateDataChannelCallback_(event) {
-  if (typeof(global.dataChannel) !== 'undefined' && 
+  if (typeof(global.dataChannel) !== 'undefined' &&
       global.dataChannel.readyState !== 'closed') {
     error_('Received DataChannel, but we already have one.');
   }
@@ -868,6 +866,7 @@ function hookupDataChannelEvents() {
 function onDataChannelReadyStateChange_() {
   print_('DataChannel state:' + global.dataChannel.readyState);
   global.dataStatusCallback(global.dataChannel.readyState);
+  console.log(global.dataStatusCallback);
   // Display dataChannel.id only when dataChannel is active/open.
   if (global.dataChannel.readyState === 'open') {
     $('data-channel-id').value = global.dataChannel.id;
@@ -1039,29 +1038,11 @@ function printHandler_(message, textField, color) {
 function getEvaluatedJavaScript_(stringRepresentation) {
   try {
     var evaluatedJavaScript;
-    eval('evaluatedJavaScript = ' + stringRepresentation);
+    evaluatedJavaScript = JSON.parse(stringRepresentation);
     return evaluatedJavaScript;
   } catch (exception) {
     error_('Not valid JavaScript expression: ' + stringRepresentation);
   }
-}
-
-// Swaps lines within a SDP message.
-// @param {string} sdp The full SDP message.
-// @param {string} line The line to swap with swapWith.
-// @param {string} swapWith The other line.
-// @return {string} The altered SDP message.
-function swapSdpLines_(sdp, line, swapWith) {
-  var lines = sdp.split('\r\n');
-  var lineStart = lines.indexOf(line);
-  var swapLineStart = lines.indexOf(swapWith);
-  if (lineStart === -1 || swapLineStart === -1) {
-    return sdp;  // This generally happens on the first message.
-  }
-  var tmp = lines[lineStart];
-  lines[lineStart] = lines[swapLineStart];
-  lines[swapLineStart] = tmp;
-  return lines.join('\r\n');
 }
 
 function forceIsac_() {
@@ -1148,7 +1129,7 @@ function parseRemotePeerIdIfConnected_(responseText) {
       if (remotePeerId !== null) {
         error_('Expected just one remote peer in this test: ' +
                'found several.');
-      }     
+      }
       // Found a remote peer.
       remotePeerId = id;
     }
