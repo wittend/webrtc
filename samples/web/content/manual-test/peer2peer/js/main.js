@@ -206,13 +206,13 @@ function updateGetUserMediaConstraints() {
                                        selectedVideoDevice);
 
     if ($('audio').checked) {
-      if (typeof(devices.audioId) !== 'undefined') {
+      if (typeof devices.audioId !== 'undefined') {
         constraints.audio = {optional: [{sourceId: devices.audioId}]};
       }
     }
 
     if ($('video').checked) {
-      if (typeof(devices.videoId) !== 'undefined') {
+      if (typeof devices.videoId !== 'undefined') {
         constraints.video.optional.push({sourceId: devices.videoId});
       }
     }
@@ -251,7 +251,7 @@ function clearLog() {
 
 // Stops the local stream.
 function stopLocalStream() {
-  if (typeof(global.localStream) === 'undefined') {
+  if (typeof global.localStream === 'undefined') {
     error_('Tried to stop local stream, ' +
            'but media access is not granted.');
   }
@@ -262,7 +262,7 @@ function stopLocalStream() {
 // Adds the current local media stream to a peer connection.
 // @param {RTCPeerConnection} peerConnection
 function addLocalStreamToPeerConnection(peerConnection) {
-  if (typeof(global.localStream) === 'undefined') {
+  if (typeof global.localStream  === 'undefined') {
     error_('Tried to add local stream to peer connection, but there is no ' +
            'stream yet.');
   }
@@ -278,7 +278,7 @@ function addLocalStreamToPeerConnection(peerConnection) {
 // Removes the local stream from the peer connection.
 // @param {rtcpeerconnection} peerConnection
 function removeLocalStreamFromPeerConnection(peerConnection) {
-  if (typeof(global.localStream) === 'undefined') {
+  if (typeof global.localStream  === 'undefined') {
     error_('Tried to remove local stream from peer connection, but there is ' +
            'no stream yet.');
   }
@@ -377,7 +377,7 @@ function setDataCallbacks(statusCallback, dataCallback) {
 // Sends data on an active DataChannel.
 // @param {string} data The string that will be sent to the remote peer.
 function sendDataOnChannel(data) {
-  if (typeof(global.dataChannel) === 'undefined') {
+  if (typeof global.dataChannel  === 'undefined') {
     error_('Trying to send data, but there is no DataChannel.');
   }
   global.dataChannel.send(data);
@@ -395,7 +395,7 @@ function setOnToneChange(ontonechange) {
 // @param {string} duration duration of the tones to be sent.
 // @param {string} interToneGap gap between the tones to be sent.
 function insertDtmf(tones, duration, interToneGap) {
-  if (typeof(global.dtmfSender) === 'undefined') {
+  if (typeof global.dtmfSender === 'undefined') {
     error_('Trying to send DTMF, but there is no DTMF sender.');
   }
   global.dtmfSender.insertDTMF(tones, duration, interToneGap);
@@ -476,7 +476,7 @@ function answerCall(peerConnection, message) {
 }
 
 function createDataChannel(peerConnection, label) {
-  if (typeof(global.dataChannel) !== 'undefined' &&
+  if (typeof global.dataChannel  !== 'undefined' && 
       global.dataChannel.readyState !== 'closed') {
     error_('Creating DataChannel, but we already have one.');
   }
@@ -489,7 +489,7 @@ function createDataChannel(peerConnection, label) {
 }
 
 function closeDataChannel() {
-  if (typeof(global.dataChannel) === 'undefined') {
+  if (typeof global.dataChannel === 'undefined') {
     error_('Closing DataChannel, but none exists.');
   }
   print_('DataChannel with label ' + global.dataChannel.label +
@@ -498,10 +498,10 @@ function closeDataChannel() {
 }
 
 function createDtmfSender(peerConnection) {
-  if (typeof(global.dtmfSender) !== 'undefined') {
+  if (typeof global.dtmfSender !== 'undefined') {
     error_('Creating DTMF sender, but we already have one.');
   }
-  if (typeof(global.localStream) === 'undefined') {
+  if (typeof global.localStream === 'undefined') {
     error_('Creating DTMF sender but local stream is undefined.');
   }
   var localAudioTrack = global.localStream.getAudioTracks()[0];
@@ -514,7 +514,7 @@ function createDtmfSender(peerConnection) {
 // slash, something like http://localhost:8888.
 // @param {string} clientName The name to use when connecting to the server.
 function connect(serverUrl, clientName) {
-  if (typeof(global.ourPeerId) !== 'undefined') {
+  if (typeof global.ourPeerId !== 'undefined') {
     error_('connecting, but is already connected.');
   }
   print_('Connecting to ' + serverUrl + ' as ' + clientName);
@@ -533,7 +533,7 @@ function connect(serverUrl, clientName) {
 // Creates a peer connection. Must be called before most other public functions
 // in this file.
 function preparePeerConnection() {
-  if (typeof(global.peerConnection) !== 'undefined') {
+  if (typeof global.peerConnection !== 'undefined') {
     error_('creating peer connection, but we already have one.');
   }
   global.peerConnection = createPeerConnection(STUN_SERVER);
@@ -543,7 +543,7 @@ function preparePeerConnection() {
 // Adds the local stream to the peer connection. You will have to re-negotiate
 // the call for this to take effect in the call.
 function addLocalStream() {
-  if (typeof(global.peerConnection) === 'undefined') {
+  if (typeof global.peerConnection === 'undefined') {
     error_('adding local stream, but we have no peer connection.');
   }
   addLocalStreamToPeerConnection(global.peerConnection);
@@ -553,7 +553,7 @@ function addLocalStream() {
 // Removes the local stream from the peer connection. You will have to
 // re-negotiate the call for this to take effect in the call.
 function removeLocalStream() {
-  if (typeof(global.peerConnection) === 'undefined') {
+  if (typeof global.peerConnection === 'undefined') {
     error_('attempting to remove local stream, but no call is up');
   }
   removeLocalStreamFromPeerConnection(global.peerConnection);
@@ -569,7 +569,7 @@ function removeLocalStream() {
 // @param {function} typeToToggle Either "audio" or "video" depending on what
 // the selector function selects.
 function toggleRemoteStream(selectAudioOrVideoTrack, typeToToggle) {
-  if (typeof(global.peerConnection) === 'undefined') {
+  if (typeofglobal.peerConnection === 'undefined') {
     error_('Tried to toggle remote stream, but have no peer connection.');
   }
   if (global.peerConnection.getRemoteStreams().length === 0) {
@@ -583,7 +583,7 @@ function toggleRemoteStream(selectAudioOrVideoTrack, typeToToggle) {
 // See documentation on toggleRemoteStream (this function is the same except
 // we are looking at local streams).
 function toggleLocalStream(selectAudioOrVideoTrack, typeToToggle) {
-  if (typeof(global.peerConnection) === 'undefined') {
+  if (typeof global.peerConnection === 'undefined') {
     error_('Tried to toggle local stream, but have no peer connection.');
   }
   if (global.peerConnection.getLocalStreams().length === 0) {
@@ -598,7 +598,7 @@ function toggleLocalStream(selectAudioOrVideoTrack, typeToToggle) {
 // Hangs up a started call. Returns ok-call-hung-up on success. This tab will
 // not accept any incoming calls after this call.
 function hangUp() {
-  if (typeof(global.peerConnection) === 'undefined') {
+  if (typeof global.peerConnection === 'undefined') {
     error_('hanging up, but has no peer connection');
   }
   if (getReadyState_() !== 'active') {
@@ -620,7 +620,7 @@ function acceptIncomingCalls() {
 // be created on each PeerConnection.
 // Returns ok-datachannel-created on success.
 function createDataChannelOnPeerConnection() {
-  if (typeof(global.peerConnection) === 'undefined') {
+  if (typeof global.peerConnection === 'undefined') {
     error_('Tried to create data channel, but have no peer connection.');
   }
   createDataChannel(global.peerConnection, global.ourClientName);
@@ -630,7 +630,7 @@ function createDataChannelOnPeerConnection() {
 // Close the DataChannel on the current PeerConnection.
 // Returns ok-datachannel-close on success.
 function closeDataChannelOnPeerConnection() {
-  if (typeof(global.peerConnection) === 'undefined') {
+  if (typeof global.peerConnection === 'undefined') {
     error_('Tried to close data channel, but have no peer connection.');
   }
   closeDataChannel(global.peerConnection);
@@ -640,7 +640,7 @@ function closeDataChannelOnPeerConnection() {
 // Creates a DTMF sender on the current PeerConnection.
 // Returns ok-dtmfsender-created on success.
 function createDtmfSenderOnPeerConnection() {
-  if (typeof(global.peerConnection) === 'undefined') {
+  if (typeof global.peerConnection === 'undefined') {
     error_('Tried to create DTMF sender, but have no peer connection.');
   }
   createDtmfSender(global.peerConnection);
@@ -650,7 +650,8 @@ function createDtmfSenderOnPeerConnection() {
 // Send DTMF tones on the global.dtmfSender.
 // Returns ok-dtmf-sent on success.
 function insertDtmfOnSender(tones, duration, interToneGap) {
-  if (typeof(global.dtmfSender) === 'undefined') {
+
+  if (typeof global.dtmfSender === 'undefined') {
     error_('Tried to insert DTMF tones, but have no DTMF sender.');
   }
   insertDtmf(tones, duration, interToneGap);
@@ -670,34 +671,34 @@ function sendToPeer(peer, message) {
   request.send(message);
 }
 
-// @param {!string} videoTagId The ID of the video tag to update.
-// @param {!number} width of the video to update the video tag, if width or
-// height is 0, size will be taken from videoTag.videoWidth.
-// @param {!number} height of the video to update the video tag, if width or
-// height is 0 size will be taken from the videoTag.videoHeight.
-/* exported updateVideoTagSize */
-function updateVideoTagSize(videoTagId, width, height) {
-  var videoTag = $(videoTagId);
+// @param {!string} videoElementId The ID of the video element to update.
+// @param {!number} width of the video to update the video element, if width or
+// height is 0, size will be taken from videoElement.videoWidth.
+// @param {!number} height of the video to update the video element, if width or
+// height is 0 size will be taken from the videoElement.videoHeight.
+function updateVideoElementSize(videoElementId, width, height) {
+  var videoElement = $(videoElementId);
   if (width > 0 || height > 0) {
-    videoTag.width = width;
-    videoTag.height = height;
+    videoElement.width = width;
+    videoElement.height = height;
   } else {
-    if (videoTag.videoWidth > 0 || videoTag.videoHeight > 0) {
-      videoTag.width = videoTag.videoWidth;
-      videoTag.height = videoTag.videoHeight;
-      print_('Set video tag "' + videoTagId + '" size to ' + videoTag.width +
-             'x' + videoTag.height);
+    if (videoElement.videoWidth > 0 || videoElement.videoHeight > 0) {
+      videoElement.width = videoElement.videoWidth;
+      videoElement.height = videoElement.videoHeight;
+      print_('Set video element "' + videoElementId + '" size to ' +
+             videoElement.width + 'x' + videoElement.height);
     } else {
-      print_('"' + videoTagId + '" video stream size is 0, skipping resize');
+      print_('"' + videoElementId + '" video stream size is 0, skipping ' +
+             ' resize');
     }
   }
-  displayVideoSize_(videoTag);
+  displayVideoSize_(videoElement);
 }
 
 // Disconnects from the peerconnection server. Returns ok-disconnected on
 // success.
 function disconnect_() {
-  if (typeof(global.ourPeerId) === 'undefined') {
+  if (typeof global.ourPeerId === 'undefined') {
     return;
   }
   var request = new XMLHttpRequest();
@@ -720,7 +721,7 @@ function isDisconnected_() {
 // implemented the new states we have to use this interim solution of always
 // assuming that the PeerConnection is 'active'.
 function getReadyState_() {
-  if (typeof(global.peerConnection) === 'undefined') {
+  if (typeof global.peerConnection === 'undefined') {
     return 'no-peer-connection';
   }
   return 'active';
@@ -756,8 +757,8 @@ function doGetUserMedia_(constraints) {
 // (where x is the error code from the error callback) depending on which
 // callback got called by WebRTC.
 function obtainGetUserMediaResult_() {
-  if (typeof(global.requestWebcamAndMicrophoneResult) === 'undefined') {
-    global.requestWebcamAndMicrophoneResult = ' not called yet';
+  if (typeof global.requestWebcamAndMicrophoneResult === 'undefined') {
+    global.requestWebcamAndMicrophoneResult = ' not called yet'; 
   }
   return global.requestWebcamAndMicrophoneResult;
 }
@@ -773,11 +774,11 @@ function obtainGetUserMediaResult_() {
 // ok-negotiating immediately to the test if the negotiation was successfully
 // sent.
 function negotiateCall_() {
-  if (typeof(global.peerConnection) === 'undefined') {
+  if (typeof global.peerConnection === 'undefined') {
     error_('Negotiating call, but we have no peer connection.');
-  } else if (typeof(global.ourPeerId) === 'undefined') {
-    error_('Negotiating call, but not connected.');
-  } else if (typeof(global.remotePeerId) === 'undefined') {
+  } else if (typeof global.ourPeerId === 'undefined') {
+    error_('Negotiating call, but not connected.'); 
+  } else if (typeof global.remotePeerId === 'undefined') {
     error_('Negotiating call, but missing remote peer.');
   }
   setupCall(global.peerConnection);
@@ -831,11 +832,11 @@ function setLocalAndSendMessage_(sessionDescription) {
 
 function addStreamCallback_(event) {
   print_('Receiving remote stream...');
-  var videoTag = document.getElementById('remote-view');
-  attachMediaStream(videoTag, event.stream);
+  var videoElement = document.getElementById('remote-view');
+  attachMediaStream(videoElement, event.stream);
 
-  window.addEventListener('loadedmetadata',
-      function() {displayVideoSize_(videoTag);}, true);
+  window.addEventListener('loadedmetadata', 
+      function() {displayVideoSize_(videoElement);}, true);
 }
 
 function removeStreamCallback_() {
@@ -844,7 +845,7 @@ function removeStreamCallback_() {
 }
 
 function onCreateDataChannelCallback_(event) {
-  if (typeof(global.dataChannel) !== 'undefined' &&
+  if (typeof global.dataChannel !== 'undefined' && 
       global.dataChannel.readyState !== 'closed') {
     error_('Received DataChannel, but we already have one.');
   }
@@ -881,11 +882,11 @@ function getUserMediaOkCallback_(stream) {
   success_('getUserMedia');
 
   if (stream.getVideoTracks().length > 0) {
-    // Show the video tag if we did request video in the getUserMedia call.
-    var videoTag = $('local-view');
-    attachMediaStream(videoTag, stream);
+    // Show the video element if we did request video in the getUserMedia call.
+    var videoElement = $('local-view');
+    attachMediaStream(videoElement, stream);
     window.addEventListener('loadedmetadata', function() {
-        displayVideoSize_(videoTag);}, true);
+        displayVideoSize_(videoElement);}, true);
     // Throw an error when no video is sent from camera but gUM returns OK.
     stream.getVideoTracks()[0].onended = function() {
       error_(global.localStream + ' getUserMedia successful but ' +
@@ -903,19 +904,18 @@ function getUserMediaOkCallback_(stream) {
   }
 }
 
-// @param {string} videoTag The ID of the video tag + stream used to
-// write the size to a HTML tag based on id if the div's exists.
-function displayVideoSize_(videoTag) {
-  if ($(videoTag.id + '-stream-size') && $(videoTag.id + '-size')) {
-    if (videoTag.videoWidth > 0 || videoTag.videoHeight > 0) {
-      $(videoTag.id + '-stream-size').innerHTML = '(stream size: ' +
-                                                  videoTag.videoWidth + 'x' +
-                                                  videoTag.videoHeight + ')';
-      $(videoTag.id + '-size').innerHTML = videoTag.width + 'x' +
-                                           videoTag.height;
+// @param {string} videoElement The ID of the video element + stream used to
+// write the size to a HTML element based on id if the div's exists.
+function displayVideoSize_(videoElement) {
+  if ($(videoElement.id + '-stream-size') && $(videoElement.id + '-size')) {
+    if (videoElement.videoWidth > 0 || videoElement.videoHeight > 0) {
+      $(videoElement.id + '-stream-size').innerHTML = '(stream size: ' +
+          videoElement.videoWidth + 'x' + videoElement.videoHeight + ')';
+      $(videoElement.id + '-size').innerHTML = videoElement.width + 'x' +
+          videoElement.height;
     }
   } else {
-    print_('Skipping updating -stream-size and -size tags due to div\'s ' +
+    print_('Skipping updating -stream-size and -size elements due to div\'s ' +
            'are missing');
   }
 }
@@ -1193,7 +1193,7 @@ function handleServerNotification_(message) {
 }
 
 function closeCall_() {
-  if (typeof(global.peerConnection) === 'undefined') {
+  if (typeof global.peerConnection === 'undefined') {
     warning_('Closing call, but no call active.');
   }
   global.peerConnection.close();
@@ -1211,7 +1211,7 @@ function handlePeerMessage_(peerId, message) {
     closeCall_();
     return;
   }
-  if (typeof(global.peerConnection) === 'undefined' &&
+  if (typeof global.peerConnection  === 'undefined' &&
       global.acceptsIncomingCalls) {
     // The other side is calling us.
     print_('We are being called: answer...');
