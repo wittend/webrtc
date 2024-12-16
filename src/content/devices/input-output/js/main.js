@@ -13,10 +13,22 @@ const audioInputSelect = document.querySelector('select#audioSource');
 const audioOutputSelect = document.querySelector('select#audioOutput');
 const videoSelect = document.querySelector('select#videoSource');
 const selectors = [audioInputSelect, audioOutputSelect, videoSelect];
+var hasMic = false;
+var hasCamera = false;
+var openMic = undefined;
+var openCamera = undefined;
 
 audioOutputSelect.disabled = !('sinkId' in HTMLMediaElement.prototype);
 
+function getDevices() {
+  console.log('getDevices');
+  navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
+}
+
 function gotDevices(deviceInfos) {
+  console.log('gotDevices', deviceInfos);
+  hasMic = false;
+  hasCamera = false;
   // Handles being called several times to update labels. Preserve values.
   const values = selectors.map(select => select.value);
   selectors.forEach(select => {
@@ -26,15 +38,18 @@ function gotDevices(deviceInfos) {
   });
   for (let i = 0; i !== deviceInfos.length; ++i) {
     const deviceInfo = deviceInfos[i];
+    console.log(deviceInfo);
     const option = document.createElement('option');
     option.value = deviceInfo.deviceId;
     if (deviceInfo.kind === 'audioinput') {
+      hasMic = true;
       option.text = deviceInfo.label || `microphone ${audioInputSelect.length + 1}`;
       audioInputSelect.appendChild(option);
     } else if (deviceInfo.kind === 'audiooutput') {
       option.text = deviceInfo.label || `speaker ${audioOutputSelect.length + 1}`;
       audioOutputSelect.appendChild(option);
     } else if (deviceInfo.kind === 'videoinput') {
+      hasCamera = true;
       option.text = deviceInfo.label || `camera ${videoSelect.length + 1}`;
       videoSelect.appendChild(option);
     } else {
@@ -46,9 +61,11 @@ function gotDevices(deviceInfos) {
       select.value = values[selectorIndex];
     }
   });
+  start();
 }
 
 function getDevices() {
+  console.log('getDevices');
   navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
 }
 
@@ -81,7 +98,15 @@ function changeAudioDestination() {
 function gotStream(stream) {
   window.stream = stream; // make stream available to console
   videoElement.srcObject = stream;
-  getDevices();
+  if (stream.getVideoTracks()[0]) {
+    openCamera = stream.getVideoTracks()[0].getSettings().deviceId;
+  }
+  if (stream.getAudioTracks()[0]) {
+    openMic = stream.getAudioTracks()[0].getSettings().deviceId;
+  }
+  console.log('openCamera', openCamera, 'openMic', openMic);
+  // Refresh list in case labels have become available
+  return getDevices();
 }
 
 function handleError(error) {
@@ -89,18 +114,30 @@ function handleError(error) {
 }
 
 function start() {
+  const audioSource = audioInputSelect.value || undefined;
+  const videoSource = videoSelect.value || undefined;
+  console.log('audio', audioSource, 'video', videoSource);
+  if (openMic == audioSource && openCamera == videoSource) {
+    return;
+  }
   if (window.stream) {
     window.stream.getTracks().forEach(track => {
       track.stop();
     });
+    openCamera = undefined;
+    openMic = undefined;
   }
-  const audioSource = audioInputSelect.value;
-  const videoSource = videoSelect.value;
-  const constraints = {
-    audio: {deviceId: audioSource ? {exact: audioSource} : undefined},
-    video: {deviceId: videoSource ? {exact: videoSource} : undefined}
-  };
-  navigator.mediaDevices.getUserMedia(constraints).then(gotStream);
+  let constraints = {};
+  if (hasMic) {
+    constraints['audio'] = {deviceId: audioSource ? {exact: audioSource} : undefined};
+  }
+  if (hasCamera) {
+    constraints['video'] =  {deviceId: videoSource ? {exact: videoSource} : undefined};
+  }
+  console.log('start', constraints);
+  if (hasCamera || hasMic) {
+    navigator.mediaDevices.getUserMedia(constraints).then(gotStream).catch(handleError);
+  }
 }
 
 audioInputSelect.onchange = start;
@@ -108,4 +145,4 @@ audioOutputSelect.onchange = changeAudioDestination;
 videoSelect.onchange = start;
 navigator.mediaDevices.ondevicechange = getDevices;
 
-start();
+getDevices();
