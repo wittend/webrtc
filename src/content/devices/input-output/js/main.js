@@ -64,11 +64,6 @@ function gotDevices(deviceInfos) {
   start();
 }
 
-function getDevices() {
-  console.log('getDevices');
-  navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
-}
-
 // Attach audio output device to video element using device/sink ID.
 function attachSinkId(element, sinkId) {
   if (typeof element.sinkId !== 'undefined') {
