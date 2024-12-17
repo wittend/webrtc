@@ -145,7 +145,7 @@ function stopRecording() {
 
 function handleSuccess(stream) {
   recordButton.disabled = false;
-  console.log('getMedia() got stream:', stream);
+  console.log(`${sourceSelect.value} got stream:`, stream);
   window.stream = stream;
 
   const gumVideo = document.querySelector('video#gum');
@@ -165,8 +165,8 @@ async function init(constraints) {
     const stream = await navigator.mediaDevices[sourceSelect.value](constraints);
     handleSuccess(stream);
   } catch (e) {
-    console.error('getMedia error:', e);
-    errorMsgElement.innerHTML = `getMedia error:${e.toString()}`;
+    console.error(`${sourceSelect.value} error:`, e);
+    errorMsgElement.innerHTML = `${sourceSelect.value} error:${e.toString()}`;
   }
 }
 
