@@ -22,7 +22,6 @@ let hasPermission = false;
 audioOutputSelect.disabled = !('sinkId' in HTMLMediaElement.prototype);
 
 function getDevices() {
-  console.log('getDevices');
   navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
 }
 
@@ -40,7 +39,6 @@ function gotDevices(deviceInfos) {
   });
   for (let i = 0; i !== deviceInfos.length; ++i) {
     const deviceInfo = deviceInfos[i];
-    console.log(deviceInfo);
     if (deviceInfo.deviceId == '') {
       continue;
     }
@@ -107,7 +105,6 @@ function gotStream(stream) {
   if (stream.getAudioTracks()[0]) {
     openMic = stream.getAudioTracks()[0].getSettings().deviceId;
   }
-  console.log('openCamera', openCamera, 'openMic', openMic);
   // Refresh list in case labels have become available
   return getDevices();
 }
@@ -119,8 +116,6 @@ function handleError(error) {
 function start() {
   const audioSource = audioInputSelect.value || undefined;
   const videoSource = videoSelect.value || undefined;
-  console.log('audio', audioSource, 'video', videoSource);
-  console.log('openMic', openMic, 'openCamera', openCamera);
   // Don't open the same devices again.
   if (hasPermission && openMic == audioSource && openCamera == videoSource) {
     return;
