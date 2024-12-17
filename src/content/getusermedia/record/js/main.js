@@ -16,6 +16,7 @@
 let mediaRecorder;
 let recordedBlobs;
 
+const sourceSelect = document.querySelector('#source');
 const codecPreferences = document.querySelector('#codecPreferences');
 
 const errorMsgElement = document.querySelector('span#errorMsg');
@@ -144,7 +145,7 @@ function stopRecording() {
 
 function handleSuccess(stream) {
   recordButton.disabled = false;
-  console.log('getUserMedia() got stream:', stream);
+  console.log('getMedia() got stream:', stream);
   window.stream = stream;
 
   const gumVideo = document.querySelector('video#gum');
@@ -161,11 +162,11 @@ function handleSuccess(stream) {
 
 async function init(constraints) {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+    const stream = await navigator.mediaDevices[sourceSelect.value](constraints);
     handleSuccess(stream);
   } catch (e) {
-    console.error('navigator.getUserMedia error:', e);
-    errorMsgElement.innerHTML = `navigator.getUserMedia error:${e.toString()}`;
+    console.error('getMedia error:', e);
+    errorMsgElement.innerHTML = `getMedia error:${e.toString()}`;
   }
 }
 
@@ -174,7 +175,7 @@ document.querySelector('button#start').addEventListener('click', async () => {
   const hasEchoCancellation = document.querySelector('#echoCancellation').checked;
   const constraints = {
     audio: {
-      echoCancellation: {exact: hasEchoCancellation}
+      echoCancellation: hasEchoCancellation
     },
     video: {
       width: 1280, height: 720
