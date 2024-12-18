@@ -188,8 +188,8 @@ async function onStart(isGetDisplayMedia) {
 }
 
 document.querySelector('button#start-gum').addEventListener('click', async () => {
-  await onStart(false)
+  await onStart(false);
 });
 document.querySelector('button#start-gdm').addEventListener('click', async () => {
-  await onStart(true)
+  await onStart(true);
 });
