@@ -16,7 +16,6 @@
 let mediaRecorder;
 let recordedBlobs;
 
-const sourceSelect = document.querySelector('#source');
 const codecPreferences = document.querySelector('#codecPreferences');
 
 const errorMsgElement = document.querySelector('span#errorMsg');
@@ -145,7 +144,7 @@ function stopRecording() {
 
 function handleSuccess(stream) {
   recordButton.disabled = false;
-  console.log(`${sourceSelect.value} got stream:`, stream);
+  console.log('Got stream:', stream);
   window.stream = stream;
 
   const gumVideo = document.querySelector('video#gum');
@@ -160,18 +159,22 @@ function handleSuccess(stream) {
   codecPreferences.disabled = false;
 }
 
-async function init(constraints) {
+async function init(constraints, isGetDisplayMedia) {
   try {
-    const stream = await navigator.mediaDevices[sourceSelect.value](constraints);
+    console.log(constraints, isGetDisplayMedia)
+    const stream = isGetDisplayMedia ?
+        await navigator.mediaDevices.getDisplayMedia(constraints) :
+        await navigator.mediaDevices.getUserMedia(constraints);
     handleSuccess(stream);
   } catch (e) {
-    console.error(`${sourceSelect.value} error:`, e);
-    errorMsgElement.innerHTML = `${sourceSelect.value} error:${e.toString()}`;
+    console.error('Source open error:', e);
+    errorMsgElement.innerHTML = `Source error: ${e.toString()}`;
   }
 }
 
-document.querySelector('button#start').addEventListener('click', async () => {
-  document.querySelector('button#start').disabled = true;
+async function onStart(isGetDisplayMedia) {
+  document.querySelector('button#start-gum').disabled = true;
+  document.querySelector('button#start-gdm').disabled = true;
   const hasEchoCancellation = document.querySelector('#echoCancellation').checked;
   const constraints = {
     audio: {
@@ -182,5 +185,8 @@ document.querySelector('button#start').addEventListener('click', async () => {
     }
   };
   console.log('Using media constraints:', constraints);
-  await init(constraints);
-});
+  await init(constraints, isGetDisplayMedia);
+}
+
+document.querySelector('button#start-gum').addEventListener('click', async () => { await onStart(false) });
+document.querySelector('button#start-gdm').addEventListener('click', async () => { await onStart(true) });
