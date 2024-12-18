@@ -161,7 +161,6 @@ function handleSuccess(stream) {
 
 async function init(constraints, isGetDisplayMedia) {
   try {
-    console.log(constraints, isGetDisplayMedia)
     const stream = isGetDisplayMedia ?
         await navigator.mediaDevices.getDisplayMedia(constraints) :
         await navigator.mediaDevices.getUserMedia(constraints);
@@ -188,5 +187,9 @@ async function onStart(isGetDisplayMedia) {
   await init(constraints, isGetDisplayMedia);
 }
 
-document.querySelector('button#start-gum').addEventListener('click', async () => { await onStart(false) });
-document.querySelector('button#start-gdm').addEventListener('click', async () => { await onStart(true) });
+document.querySelector('button#start-gum').addEventListener('click', async () => {
+  await onStart(false)
+});
+document.querySelector('button#start-gdm').addEventListener('click', async () => {
+  await onStart(true)
+});
