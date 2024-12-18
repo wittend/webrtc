@@ -144,7 +144,7 @@ function stopRecording() {
 
 function handleSuccess(stream) {
   recordButton.disabled = false;
-  console.log('getUserMedia() got stream:', stream);
+  console.log('Got stream:', stream);
   window.stream = stream;
 
   const gumVideo = document.querySelector('video#gum');
@@ -159,27 +159,37 @@ function handleSuccess(stream) {
   codecPreferences.disabled = false;
 }
 
-async function init(constraints) {
+async function init(constraints, isGetDisplayMedia) {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+    const stream = isGetDisplayMedia ?
+        await navigator.mediaDevices.getDisplayMedia(constraints) :
+        await navigator.mediaDevices.getUserMedia(constraints);
     handleSuccess(stream);
   } catch (e) {
-    console.error('navigator.getUserMedia error:', e);
-    errorMsgElement.innerHTML = `navigator.getUserMedia error:${e.toString()}`;
+    console.error('Source open error:', e);
+    errorMsgElement.innerHTML = `Source error: ${e.toString()}`;
   }
 }
 
-document.querySelector('button#start').addEventListener('click', async () => {
-  document.querySelector('button#start').disabled = true;
+async function onStart(isGetDisplayMedia) {
+  document.querySelector('button#start-gum').disabled = true;
+  document.querySelector('button#start-gdm').disabled = true;
   const hasEchoCancellation = document.querySelector('#echoCancellation').checked;
   const constraints = {
     audio: {
-      echoCancellation: {exact: hasEchoCancellation}
+      echoCancellation: hasEchoCancellation
     },
     video: {
       width: 1280, height: 720
     }
   };
   console.log('Using media constraints:', constraints);
-  await init(constraints);
+  await init(constraints, isGetDisplayMedia);
+}
+
+document.querySelector('button#start-gum').addEventListener('click', async () => {
+  await onStart(false);
+});
+document.querySelector('button#start-gdm').addEventListener('click', async () => {
+  await onStart(true);
 });
