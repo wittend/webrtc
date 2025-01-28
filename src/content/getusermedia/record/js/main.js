@@ -89,11 +89,17 @@ function getSupportedMimeTypes() {
     'video/webm;codecs=av01,opus',
     'video/x-matroska;codecs=hvc1.1.6.L186.B0,opus',
     'video/mp4;codecs=vp9,mp4a.40.2',
+    'video/mp4;codecs=vp9,opus',
     'video/mp4;codecs=avc1.64003E,mp4a.40.2',
+    'video/mp4;codecs=avc1.64003E,opus',
     'video/mp4;codecs=avc3.64003E,mp4a.40.2',
+    'video/mp4;codecs=avc3.64003E,opus',
     'video/mp4;codecs=hvc1.1.6.L186.B0,mp4a.40.2',
+    'video/mp4;codecs=hvc1.1.6.L186.B0,opus',
     'video/mp4;codecs=hev1.1.6.L186.B0,mp4a.40.2',
+    'video/mp4;codecs=hev1.1.6.L186.B0,opus',
     'video/mp4;codecs=av01.0.19M.08,mp4a.40.2',
+    'video/mp4;codecs=av01.0.19M.08,opus',
     'video/mp4',
   ];
   return possibleTypes.filter(mimeType => {
