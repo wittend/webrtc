@@ -17,13 +17,13 @@ let mediaRecorder;
 let recordedBlobs;
 
 const codecPreferences = document.querySelector('#codecPreferences');
-
 const errorMsgElement = document.querySelector('span#errorMsg');
 const recordedVideo = document.querySelector('video#recorded');
 const recordButton = document.querySelector('button#record');
 recordButton.addEventListener('click', () => {
   if (recordButton.textContent === 'Start Recording') {
     startRecording();
+    uploadButton.disabled = true;
   } else {
     stopRecording();
     recordButton.textContent = 'Start Recording';
@@ -33,15 +33,24 @@ recordButton.addEventListener('click', () => {
   }
 });
 
+function doPlay(blob) {
+  recordedVideo.src = null;
+  recordedVideo.srcObject = null;
+  recordedVideo.src = window.URL.createObjectURL(blob);
+  recordedVideo.controls = true;
+  recordedVideo.play();
+};
+
 const playButton = document.querySelector('button#play');
 playButton.addEventListener('click', () => {
   const mimeType = codecPreferences.options[codecPreferences.selectedIndex].value.split(';', 1)[0];
   const superBuffer = new Blob(recordedBlobs, {type: mimeType});
-  recordedVideo.src = null;
-  recordedVideo.srcObject = null;
-  recordedVideo.src = window.URL.createObjectURL(superBuffer);
-  recordedVideo.controls = true;
-  recordedVideo.play();
+  doPlay(superBuffer);
+});
+
+const uploadButton = document.querySelector('#upload');
+uploadButton.addEventListener('change', e => {
+  doPlay(e.target.files[0]);
 });
 
 const downloadButton = document.querySelector('button#download');
