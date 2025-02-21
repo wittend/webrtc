@@ -12,6 +12,22 @@
   width: 120px;
 }
 
+/* copied from main button style */
+.file-upload {
+  background-color: #d84a38;
+  border: none;
+  border-radius: 2px;
+  color: white;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.8em;
+  margin: 0 0 1em 0;
+  padding: 0.5em 0.7em 0.6em 0.7em;
+}
+
+.file-upload:hover {
+  background-color: #cf402f;
+}
+
 button:last-of-type {
   margin: 0;
 }
@@ -34,4 +50,8 @@ video:last-of-type {
 
 video#gumVideo {
   margin: 0 20px 20px 0;
+}
+
+input[type="file"] {
+  display: none;
 }
