@@ -61,10 +61,10 @@ function hangup() {
   Promise
       .all([
         remotePeerConnection
-            .getStats(null)
+            .getStats()
             .then(showRemoteStats, err => console.log(err)),
         localPeerConnection
-            .getStats(null)
+            .getStats()
             .then(showLocalStats, err => console.log(err))
       ])
       .then(() => {
@@ -267,10 +267,10 @@ setInterval(() => {
   }
   if (localPeerConnection && remotePeerConnection) {
     remotePeerConnection
-        .getStats(null)
+        .getStats()
         .then(showRemoteStats, err => console.log(err));
     localPeerConnection
-        .getStats(null)
+        .getStats()
         .then(showLocalStats, err => console.log(err));
   } else {
     console.log('Not connected yet');
@@ -292,19 +292,18 @@ setInterval(() => {
 // might be named toString?
 function dumpStats(results) {
   let statsString = '';
-  results.forEach(res => {
+  results.forEach(report => {
     statsString += '<h3>Report type=';
-    statsString += res.type;
+    statsString += report.type;
     statsString += '</h3>\n';
-    statsString += `id ${res.id}<br>`;
-    statsString += `time ${res.timestamp}<br>`;
-    Object.keys(res).forEach(k => {
-      if (k !== 'timestamp' && k !== 'type' && k !== 'id') {
-        if (typeof res[k] === 'object') {
-          statsString += `${k}: ${JSON.stringify(res[k])}<br>`;
-        } else {
-          statsString += `${k}: ${res[k]}<br>`;
-        }
+    statsString += `id: ${report.id}<br>`;
+    statsString += `timestamp: ${report.timestamp}<br>`;
+    Object.keys(report).forEach(key => {
+      if (['id', 'timestamp', 'type'].includes(key)) return;
+      if (typeof report[key] === 'object') {
+        statsString += `${key}: ${JSON.stringify(report[key])}<br>`;
+      } else {
+        statsString += `${key}: ${report[key]}<br>`;
       }
     });
   });
