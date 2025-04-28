@@ -1,3 +1,11 @@
+---
+name: Bug report
+about: Create a report to help us improve
+title: ''
+labels: ''
+assignees: ''
+
+---
 # Please read first!
 Please use [discuss-webrtc](https://groups.google.com/forum/#!forum/discuss-webrtc) for general technical discussions and questions.
 If you have found an issue/bug with the native `libwebrtc` SDK or a browser's behaviour around WebRTC please create an issue in the relevant bug tracker. You can find more information on how to submit a bug and do so in the right place [here](https://webrtc.googlesource.com/src/+/refs/heads/main/docs/bug-reporting.md)
